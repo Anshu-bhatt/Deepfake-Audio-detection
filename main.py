@@ -22,6 +22,7 @@ import logging
 import io
 import librosa
 import numpy as np
+import asyncio
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,12 @@ logger = logging.getLogger(__name__)
 
 # Global detector instance
 detector: VoiceGUARDDetector = None
+
+
+def run_inference(audio_data, sample_rate):
+    """Run model inference in a separate thread to prevent blocking"""
+    global detector
+    return detector.classify(audio_data, sample_rate)
 
 
 # Simple response model for file upload
@@ -251,8 +258,8 @@ async def detect_audio_file(
         
         logger.info(f"Audio loaded: {len(audio)/sr:.2f}s, {sr}Hz")
         
-        # Classify the audio
-        result = detector.classify(audio, sr)
+        # Classify the audio using async pattern to prevent blocking
+        result = await asyncio.to_thread(run_inference, audio, sr)
         
         # Log result
         logger.info(

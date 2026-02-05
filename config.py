@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+ENV = os.getenv("ENVIRONMENT", "development")
+
 class Config:
     """Application configuration"""
     
