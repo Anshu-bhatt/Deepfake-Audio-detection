@@ -1,37 +1,33 @@
-# Dockerfile
+# Base image (small + stable)
 FROM python:3.9-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install only REQUIRED system dependencies
+# curl is needed because you are using HEALTHCHECK
 RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
     libsndfile1 \
     ffmpeg \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Copy requirements first (better Docker caching)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Install Python dependencies (fast + no cache)
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt
+
+
+# Copy application code (respects .dockerignore)
 COPY . .
 
-# Create models directory
-RUN mkdir -p models
-
-# Set environment variables
+# Environment variables
 ENV PYTHONPATH=/app
 ENV ENVIRONMENT=production
 
-# Expose port
+# Railway exposes PORT dynamically, but EXPOSE is fine
 EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/health || exit 1
 
 # Start command
 CMD ["python", "deploy.py"]

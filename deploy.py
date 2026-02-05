@@ -112,14 +112,11 @@ if __name__ == "__main__":
     # Production server settings
     logger.info("🚀 Starting VoiceGUARD API for Hackathon Evaluation")
     logger.info(f"📍 API Key: {config.API_KEY}")
-    logger.info(f"🌐 Endpoint: http://{config.HOST}:{config.PORT}/api/v1/detect")
-    logger.info(f"📖 API Docs: http://{config.HOST}:{config.PORT}/docs")
     
-    uvicorn.run(
-        "deploy:app",
-        host=config.HOST,
-        port=config.PORT,
-        reload=False,  # Disable reload for production
-        access_log=True,
-        workers=1  # Single worker for GPU model
-    )
+    # Get port from environment variable (for cloud deployment)
+    port = int(os.environ.get("PORT", 8000))
+    
+    logger.info(f"🌐 Endpoint: http://{config.HOST}:{port}/api/v1/detect")
+    logger.info(f"📖 API Docs: http://{config.HOST}:{port}/docs")
+    
+    uvicorn.run(app, host="0.0.0.0", port=port)
