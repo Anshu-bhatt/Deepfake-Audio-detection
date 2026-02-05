@@ -1,0 +1,16 @@
+node_modules
+venv
+__pycache__
+.git
+.gitignore
+.env
+*.log
+*.zip
+*.tar
+*.gz
+data
+datasets
+models
+*.h5
+*.pt
+*.pkl
