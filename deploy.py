@@ -35,7 +35,6 @@ def get_api_key(api_key: str = Security(api_key_header)):
 
 # Add API key dependency to protected endpoints
 from main import detect_audio_file as original_detect
-from main import classify_audio as original_classify
 
 # Enhanced CORS for public access
 app.add_middleware(
@@ -69,18 +68,6 @@ async def detect_with_auth(file, api_key: str = Depends(get_api_key)):
     """
     return await original_detect(file)
 
-@app.post("/api/v1/classify", dependencies=[Depends(get_api_key)], tags=["Production API"])
-async def classify_with_auth(request, api_key: str = Depends(get_api_key)):
-    """
-    🏆 **HACKATHON EVALUATION ENDPOINT - Base64**
-    
-    Classify Base64 encoded audio with API key authentication.
-    
-    **Headers Required:**
-    - X-API-Key: Your provided API key
-    """
-    return await original_classify(request)
-
 @app.get("/api/v1/info", tags=["Production API"])
 async def api_info():
     """
@@ -92,7 +79,6 @@ async def api_info():
         "problem_statement": "AI-Generated Voice Detection (Multi-Language)",
         "endpoints": {
             "file_upload": "/api/v1/detect",
-            "base64_audio": "/api/v1/classify",
             "health": "/health"
         },
         "authentication": {
