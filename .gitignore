@@ -45,3 +45,32 @@ htmlcov/
 *.pth
 *.onnx
 *.bin
+
+# Test files and samples
+test_samples/
+test_sample/
+test_*.py
+*_test.py
+demo_*.py
+debug_*.py
+
+# Audio files
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.ogg
+
+# Large data files
+*.json
+voiceguard_evaluation_*.json
+test_results.json
+
+# Unnecessary scripts
+analyze_*.py
+fix_*.py
+trim_*.py
+convert_*.py
+performance_*.py
+model_evaluation.py
+deploy.py
