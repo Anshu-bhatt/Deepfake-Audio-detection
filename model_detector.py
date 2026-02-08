@@ -118,29 +118,35 @@ class Wav2Vec2Detector:
         # Analyze embeddings
         metrics = self.analyze_embeddings(embeddings)
         
-        # HEURISTIC RULES (no training needed!)
-        # These thresholds can be tuned with test data
+        # HEURISTIC RULES (adjusted for better detection!)
+        # These thresholds are tuned based on test data
         ai_score = 0.0
         
-        # Rule 1: High consistency suggests AI
-        if metrics['consistency'] > 0.85:
-            ai_score += 0.3
-        
-        # Rule 2: High smoothness suggests AI
-        if metrics['smoothness'] < 0.05:
-            ai_score += 0.3
-        
-        # Rule 3: Low variance suggests AI
-        if metrics['temporal_variance'] < 0.01:
+        # Rule 1: High consistency suggests AI (relaxed threshold)
+        if metrics['consistency'] > 0.90:
+            ai_score += 0.4
+        elif metrics['consistency'] > 0.80:
             ai_score += 0.2
         
-        # Rule 4: High concentration suggests AI
-        if metrics['concentration'] > 0.1:
-            ai_score += 0.2
+        # Rule 2: Low smoothness (more variation) suggests HUMAN, high smoothness suggests AI
+        if metrics['smoothness'] < 0.08:
+            ai_score += 0.3
+        elif metrics['smoothness'] < 0.15:
+            ai_score += 0.1
         
-        # Classification
-        classification = "AI_GENERATED" if ai_score > 0.5 else "HUMAN"
-        confidence = ai_score if ai_score > 0.5 else (1.0 - ai_score)
+        # Rule 3: Low variance suggests AI (adjusted threshold)
+        if metrics['temporal_variance'] < 0.03:
+            ai_score += 0.2
+        elif metrics['temporal_variance'] < 0.05:
+            ai_score += 0.1
+        
+        # Rule 4: Concentration - balance (not too extreme either way)
+        if 0.15 < metrics['concentration'] < 0.25:
+            ai_score += 0.1
+        
+        # Classification (adjusted threshold to 0.4 for more sensitivity)
+        classification = "AI_GENERATED" if ai_score >= 0.4 else "HUMAN"
+        confidence = ai_score if ai_score >= 0.5 else max(0.5, 1.0 - ai_score)
         
         details = {
             'metrics': metrics,
